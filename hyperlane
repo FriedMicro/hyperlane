@@ -1,0 +1,18 @@
+#!/bin/bash
+
+USER=$(cat /opt/hyperlane/user)
+PASS=$(cat /opt/hyperlane/pass)
+HOST=$(cat /opt/hyperlane/host)
+
+COMMAND=$1
+MACHINE_NAME=$2
+MACHINE_ID=$(curl -s -X 'GET' "$HOST/api/v2.0/vm" -H 'accept: */*' -u "$USER:$PASS" | jq ".[] | select(.name==\"$MACHINE_NAME\") | .id")
+
+if [ "$COMMAND" == "start" ]
+then
+        echo "Starting VM: "$MACHINE_NAME
+	curl -s -X 'POST' "$HOST/api/v2.0/vm/id/$MACHINE_ID/start" -H 'accept: */*' -u "$USER:$PASS" > /dev/null
+else
+	echo "Stopping VM: "$MACHINE_NAME
+	curl -s -X 'POST' "$HOST/api/v2.0/vm/id/$MACHINE_ID/stop" -H 'accept: */*' -u "$USER:$PASS" > /dev/null
+fi
